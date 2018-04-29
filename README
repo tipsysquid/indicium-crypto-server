@@ -1,1 +1,8 @@
 Order book aggregation API
+Built with NodeJS
+
+Gather data from multiple exchanges consisting of: 
+git@github.com:tipsysquid/indicium-crypto-server.git
+Poloniex and Bittrex etc
+full order book, asks and bids 
+exchange volume at price point 
