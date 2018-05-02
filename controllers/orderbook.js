@@ -53,6 +53,13 @@ exports.getUnifiedV1 = function(req, res, callback){
 
 }
 
+/**
+ * Returns an object containing the bittrex and poloniex markets
+ * for a particular trading pair. They are not merged
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} callback 
+ */
 exports.getUnifiedV2 = function(req, res, callback){
 	console.log("getUnifiedV2");
 	return new Promise((resolve, reject) => {
@@ -96,4 +103,9 @@ exports.getUnifiedV2 = function(req, res, callback){
 
 
 
+}
+
+
+function mergeMarkets(markets, callback){
+	
 }

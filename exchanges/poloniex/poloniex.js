@@ -57,9 +57,8 @@ exports.getOrderBook = function(req, callback){
 					body+=chunk;
 				});
 				resp.on('end', () => {
-					console.log('Got poloniex resp');
-					resolve(JSON.parse(body));
-					
+                    console.log('Got poloniex resp');
+                    return resolve(standardizeFormatting(JSON.parse(body)));				
 				});
 			})
 			.on('error', (err) => {
@@ -73,4 +72,51 @@ exports.getOrderBook = function(req, callback){
 			reject({message:"You must define the market"});
 		});
 	}
+}
+
+function standardizeFormatting(market_data, callback){
+
+    if(typeof market_data !== null){
+        return new Promise((resolve, reject) => {
+            var xx = [];
+            for(var i = 0; i < market_data.asks.length; i++){
+                var ask = market_data.asks[i];
+                var rate = ask[0];
+                var quantity = ask[1];
+                var stuff = {
+                    'rate':rate,
+                    'quantity':quantity
+                };
+                xx.push(stuff);
+            }
+            resolve(xx);
+        })
+        .then(function(sell){
+            var formatted_data = {
+                'sell':sell
+            };
+            new Promise((resolve, reject) => {
+                let buy = [];
+                for(var i = 0; i < market_data.asks.length; i++){
+                    var bid = market_data.bids[i];
+                    var rate = bid[0];
+                    var quantity = bid[1];
+                    buy.push({'rate':rate,'quantity':quantity});
+                }
+                resolve(buy);
+            })
+            .then(function(buy){
+                formatted_data.buy = buy;
+                return formatted_data;
+            });
+            return formatted_data;
+        })
+        .then(function(formatted_data){
+            return formatted_data;
+        })
+        .catch(function(err){
+            return err;
+        });
+
+    }
 }
