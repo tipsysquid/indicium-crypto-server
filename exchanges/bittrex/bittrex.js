@@ -8,7 +8,9 @@ var https = require('https');
 const api_version = 'v1.1';
 const api_url = 'https://bittrex.com/api/'+api_version+'/public';
 const orderbook_param = '/getorderbook?market=';
-
+const seperator = '-';
+const type_param = '&type=';
+const type_value = 'both';
 
 //
 //Get order books for a particular pair of currencies
@@ -20,7 +22,7 @@ exports.getBooks = function(req, res, callback){
 	if(typeof market !== 'undefined'){
 		var base = market.base;
 		var pair = market.pair;
-		const req_url = api_url+orderbook_param+base+'-'+pair+'&type=both';
+		const req_url = api_url+orderbook_param+base+seperator+pair+type_param+type_value;
 		console.log(req_url);
 		https.get(req_url, (resp) => {
 			let body = '';
@@ -43,12 +45,12 @@ exports.getBooks = function(req, res, callback){
 }
 
 exports.getOrderBook = function(req, callback){
-	console.log("getOrderBook");
+	console.log("getOrderBook Bittrex");
 	let market = req.body;
 	if(typeof market !== 'undefined'){
 		var base = market.base;
 		var pair = market.pair;
-		const req_url = api_url+orderbook_param+base+'-'+pair+'&type=both';
+		const req_url = api_url+orderbook_param+base+seperator+pair+'&type=both';
 
 		return new Promise((resolve, reject) => {
 			https.get(req_url, (resp) => {

@@ -6,5 +6,7 @@ module.exports = function(app) {
 	//particular market
 	app.get('/orderbooks', orderbooks.getBooks);
 	
-	app.post('/unified', orderbooks.getUnified);
+	app.post('/unified', orderbooks.getUnifiedV2);
+
+	app.get('/p', orderbooks.getPoloniex);
 }
