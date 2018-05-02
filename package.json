@@ -1,0 +1,20 @@
+{
+  "name": "indicium-crypto-server",
+  "version": "1.0.0",
+  "description": "Order book aggregation API Built with NodeJS",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://tipsysquid:redactedHorseMeat33@github.com/tipsysquid/indicium-crypto-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tipsysquid/indicium-crypto-server/issues"
+  },
+  "homepage": "https://github.com/tipsysquid/indicium-crypto-server#readme"
+}
