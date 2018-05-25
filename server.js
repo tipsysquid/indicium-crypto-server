@@ -25,29 +25,33 @@ app.use(bodyParser.urlencoded({extended : true}));
 startServer();
 
 function startServer(callback){
-	new Promise((resolve) => {
-		return httpServer = http.createServer(app).listen(port, resolve)
+	new Promise((resolve, reject) => {
+		var httpServer = http.createServer(app).listen(port, resolve)
+		resolve(httpServer);
 	})
-	.then(function(res){
+	.then((res) => {
 		addRoutes();
+	})
+	.then(() => {
+		console.log('Server listening on port: '+port);
 	})
 	.catch(function(ex){
 		console.log(ex);
 		process.exit();
 	});
-	console.log('Server listening on port: '+port);
 
 }
 
 function addRoutes(callback){
-	return new Promise((resolve) => {
+	return new Promise((resolve, reject) => {
 		require('./routes/orderbook.js')(app);
-		return 'Added Routes';
+		var status = "Added Routes";
+		resolve(status);
 	})
-	.then(function(status){
+	.then((status) => {
 		console.log(status);
 	})
-	.catch(function(ex){
+	.catch((ex) => {
 		console.log(ex);
 		console.log('Failed to add Routes');
 		process.exit();

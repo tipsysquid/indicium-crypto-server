@@ -42,28 +42,33 @@ connection.onclose = function () {
                    
 connection.open();
 
-exports.getOrderBook = function(req, callback){
-    console.log("getOrderBook Poloniex");
 
+exports.getOrderBookV2 = function (req) {
+    console.log("getOrderBookV2 Poloniex");
     let market = req.body;
     if(typeof market !== undefined){
         var base = market.base.toUpperCase();
         var pair = market.pair.toUpperCase();
         const req_url = api_url+orderbook_param+base+seperator+pair;
         return new Promise((resolve, reject) => {
-			https.get(req_url, (resp) => {
-				let body = '';
-				resp.on('data', (chunk) => {
-					body+=chunk;
-				});
-				resp.on('end', () => {
+            https.get(req_url, (resp) => {
+                let body = '';
+                resp.on('data', (chunk) => {
+                    body += chunk;
+                });
+                resp.on('end', () => {
                     console.log('Got poloniex resp');
-                    return resolve(standardizeFormatting(JSON.parse(body)));				
-				});
-			})
-			.on('error', (err) => {
-				reject(err);
-			});
+                    resolve(standardizeFormattingV2(JSON.parse(body)));
+                });
+            })
+            .on('error', (err) => {
+                reject(err);
+            });
+        })
+        .catch((err) => {
+            console.log("Error getOrderBookV2 poloniex");
+            console.log(JSON.stringify(err));
+            return err;
         });
         
     }
@@ -74,49 +79,40 @@ exports.getOrderBook = function(req, callback){
 	}
 }
 
-function standardizeFormatting(market_data, callback){
-
-    if(typeof market_data !== null){
+function standardizeFormattingV2(market_data) {
+    if (typeof market_data !== null) {
         return new Promise((resolve, reject) => {
-            var xx = [];
-            for(var i = 0; i < market_data.asks.length; i++){
+            var asks = [];
+            for (var i = 0; i < market_data.asks.length; i++) {
                 var ask = market_data.asks[i];
                 var rate = ask[0];
                 var quantity = ask[1];
-                var stuff = {
-                    'rate':rate,
-                    'quantity':quantity
+                var asks_r = {
+                    'rate': rate,
+                    'quantity': quantity
                 };
-                xx.push(stuff);
+                asks.push(asks_r);
             }
-            resolve(xx);
+            resolve(asks);
         })
-        .then(function(sell){
+        .then((asks) => {
             var formatted_data = {
-                'sell':sell
+                'sell': asks
             };
-            new Promise((resolve, reject) => {
-                let buy = [];
-                for(var i = 0; i < market_data.asks.length; i++){
-                    var bid = market_data.bids[i];
-                    var rate = bid[0];
-                    var quantity = bid[1];
-                    buy.push({'rate':rate,'quantity':quantity});
-                }
-                resolve(buy);
-            })
-            .then(function(buy){
-                formatted_data.buy = buy;
-                return formatted_data;
-            });
+            let buys = [];
+            for (var i = 0; i < market_data.asks.length; i++) {
+                var bid = market_data.bids[i];
+                var rate = bid[0];
+                var quantity = bid[1];
+                buys.push({ 'rate': rate, 'quantity': quantity });
+            }
+            formatted_data.buys = buys;
             return formatted_data;
         })
-        .then(function(formatted_data){
-            return formatted_data;
-        })
-        .catch(function(err){
+        .catch((err) => {
+            console.log("Error: standarizeFormattingV2");
+            console.log(JSON.stringify(err));
             return err;
-        });
-
+        });        
     }
 }

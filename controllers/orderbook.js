@@ -33,26 +33,6 @@ exports.getPoloniex = function(req, res, callback){
 	poloniex.open();
 }
 
-exports.getUnifiedV1 = function(req, res, callback){
-	console.log("getUnified");
-	return new Promise((resolve, reject) => {
-		bittrex.getOrderBook(req)
-		.then((resp,err) => {
-			if(err){
-				reject(err);
-				return;
-			}
-			else{
-				return resolve(res.status(200).send(resp));
-				
-			}
-		
-		});
-			
-	});
-
-}
-
 /**
  * Returns an object containing the bittrex and poloniex markets
  * for a particular trading pair. They are not merged
@@ -60,52 +40,39 @@ exports.getUnifiedV1 = function(req, res, callback){
  * @param {*} res 
  * @param {*} callback 
  */
-exports.getUnifiedV2 = function(req, res, callback){
-	console.log("getUnifiedV2");
-	return new Promise((resolve, reject) => {
-			bittrex.getOrderBook(req)
-			.then((book,err) => {
-				if(err){
-					reject(err);
-					return;
-				}
-				else{
-					let markets = {
-						bittrex: book
-					};
-					return markets;				
-				}		
+exports.getUnifiedV3 = function (req, res) {
+	var request = req;
+	console.log("getUnifiedV3");
+	bittrex.getOrderBook2(req)
+		.then((book, err) => {
+			if (err) {
+				reject(err);
+			}
+			let markets = {
+				bittrex: book
+			};
+			return markets;
+		})
+		.then((markets) => {
+			return [markets, poloniex.getOrderBookV2(request)];
+		})
+		.then((markets_polo) => {
+			var polo_promise = markets_polo[1];
+			var markets = markets_polo[0];
+			return polo_promise.then((book) => {
+				return book;
 			})
-			.then((markets) => {
-				return markets.poloniex = new Promise((resolve,reject) => {
-					poloniex.getOrderBook(req)
-					.then((resp) => {
-						markets.poloniex = resp;
-						return resolve(markets);
-					})
-					.catch((err) => {
-						return reject(err);
-						
-					});
-				});
-			})
-			.then((markets) => {
-				return res.status(200).send(markets);
-			})
-			.catch((err) => {
-				return res.status(500).send(err);
-			});				
-	});
-	
-
-
-
-
-
-
-}
-
-
-function mergeMarkets(markets, callback){
-	
+			.then((book) => {
+				markets.poloniex = book;
+				return markets;
+			});
+			
+		})
+		.then((markets) => {
+			return res.status(200).send(markets);
+		})
+		.catch((err) => {
+			return res.status(500).send(err);
+		});
+			
 }

@@ -44,19 +44,26 @@ exports.getBooks = function(req, res, callback){
 	}
 }
 
-exports.getOrderBook = function(req, callback){
-	console.log("getOrderBook Bittrex");
-	let market = req.body;
-	if(typeof market !== 'undefined'){
-		var base = market.base;
-		var pair = market.pair;
-		const req_url = api_url+orderbook_param+base+seperator+pair+'&type=both';
-
+exports.getOrderBook2 = function (req, callback) {
+	console.log("getOrderBook2 Bittrex");
+	return new Promise((resolve, reject) => {
+		let market = req.body;
+		if ((typeof market != 'undefined') && (Object.keys(market).length > 0)) {
+			var base = market.base;
+			var pair = market.pair;
+			const req_url = api_url + orderbook_param + base + seperator + pair + '&type=both';
+			resolve(req_url);
+		}
+		else {
+			reject({ message: "Missing paramter base or pair" });
+		}
+	})
+	.then((req_url) => {
 		return new Promise((resolve, reject) => {
 			https.get(req_url, (resp) => {
 				let body = '';
 				resp.on('data', (chunk) => {
-					body+=chunk;
+					body += chunk;
 				});
 				resp.on('end', () => {
 					console.log('Got bittrex resp');
@@ -64,14 +71,24 @@ exports.getOrderBook = function(req, callback){
 					
 				});
 			})
-			.on('error', (err) => {
-				reject(err);
-			});
-		});
-	}
-	else{
-		return new Promise((resolve,reject) => {
-			reject({message:"You must define the market"});
-		});
-	}
+				.on('error', (err) => {
+					reject(err);
+				});
+		})
+		.then((res) => {
+			return res.result;	
+		})
+		.catch((err) => {
+			return err;
+		})
+		
+	})
+	.then((result) => {
+		return result;
+	})	
+	.catch((err) => {
+		console.log("error in bittrex.getOrderBook2");
+		console.log(JSON.stringify(err));
+		return err;
+	});
 }
